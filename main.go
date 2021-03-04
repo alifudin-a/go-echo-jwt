@@ -11,20 +11,20 @@ import (
 
 func main() {
 	e := echo.New()
+	// e.Renderer = helpers.NewRenderer("./view/index.html", true)
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
-		Format: "method=${method}, uri=${uri}, status=${status}, " +
-			"host=${host}, error=${error}, latency_human=${latency_human}\n",
+		Format: "==> METHOD=${method}, URI=${uri}, STATUS=${status}, " +
+			"HOST=${host}, ERROR=${error}, LATENCY_HUMAN=${latency_human}\n",
 	}))
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
 
-	// api := e.Group("/api")
-
-	// e.File("/", "static/login.html")
+	// serve file
+	e.File("/", "view/index.html")
 
 	// Login route
 	e.POST("/login", auth.Login)
-	e.GET("/", auth.Accessible)
+	e.GET("/accessible", auth.Accessible)
 
 	// Restricted group
 	r := e.Group("/restricted")

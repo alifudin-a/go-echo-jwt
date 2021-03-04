@@ -57,20 +57,19 @@ func Login(c echo.Context) (err error) {
 	tokenClaims["fullname"] = u.FullName
 	tokenClaims["expired"] = time.Now().Add(time.Minute * 15).Unix()
 
-	// create a cookie
-	cookie := new(http.Cookie)
-	cookie.Name = u.Username
-	cookie.Value = u.Password
-	cookie.Expires = time.Now().Add(10 * time.Minute)
-	// save cookie
-	c.SetCookie(cookie)
-
 	// generate encoded token and send it as response
 	encodeToken, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 	if err != nil {
 		log.Println("Error", err)
 		return err
 	}
+
+	// create a cookie
+	cookie := new(http.Cookie)
+	cookie.Name = encodeToken
+	cookie.Expires = time.Now().Add(10 * time.Minute)
+	// save cookie
+	c.SetCookie(cookie)
 
 	resp.Code = http.StatusOK
 	resp.Message = "Successfully Create Token!"
