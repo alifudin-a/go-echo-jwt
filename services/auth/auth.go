@@ -45,28 +45,43 @@ func Login(c echo.Context) (err error) {
 		return c.JSON(http.StatusUnauthorized, resp)
 	}
 
-	// create token
-	token := jwt.New(jwt.SigningMethodHS256)
-
+	//create token
+	accessToken := jwt.New(jwt.SigningMethodHS256)
+	// ACCESS TOKEN
 	// set claims
-	tokenClaims := token.Claims.(jwt.MapClaims)
-	tokenClaims["id"] = u.ID
-	tokenClaims["username"] = u.Username
-	tokenClaims["password"] = u.Password
-	tokenClaims["email"] = u.Email
-	tokenClaims["fullname"] = u.FullName
-	tokenClaims["expired"] = time.Now().Add(time.Minute * 15).Unix()
+	accessTokenClaims := accessToken.Claims.(jwt.MapClaims)
+	accessTokenClaims["id"] = u.ID
+	accessTokenClaims["username"] = u.Username
+	accessTokenClaims["password"] = u.Password
+	accessTokenClaims["email"] = u.Email
+	accessTokenClaims["fullname"] = u.FullName
+	accessTokenClaims["expires"] = time.Now().Add(time.Minute * 15).Unix()
 
 	// generate encoded token and send it as response
-	encodeToken, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+	encodeAccessToken, err := accessToken.SignedString([]byte(os.Getenv("JWT_ACCESS_SECRET")))
 	if err != nil {
 		log.Println("Error", err)
 		return err
 	}
 
+	// // create token
+	// refreshToken := jwt.New(jwt.SigningMethodHS256)
+	// //REFRESH TOKEN
+	// refreshTokenClaims := refreshToken.Claims.(jwt.MapClaims)
+	// refreshTokenClaims["refresh_uuid"] = uuid.NewV4().String()
+	// refreshTokenClaims["expires"] = time.Now().Add(time.Hour * 24 * 7).Unix()
+
+	// // generate encoded token and send it as response
+	// encodeRefreshToken, err := refreshToken.SignedString([]byte(os.Getenv("JWT_REFRESH_TOKEN")))
+	// if err != nil {
+	// 	log.Println("Error", err)
+	// 	return err
+	// }
+
 	// create a cookie
 	cookie := new(http.Cookie)
-	cookie.Name = encodeToken
+	cookie.Name = encodeAccessToken
+	// cookie.Name = encodeRefreshToken
 	cookie.Expires = time.Now().Add(10 * time.Minute)
 	// save cookie
 	c.SetCookie(cookie)
@@ -74,7 +89,8 @@ func Login(c echo.Context) (err error) {
 	resp.Code = http.StatusOK
 	resp.Message = "Successfully Create Token!"
 	resp.Data = map[string]interface{}{
-		"token": encodeToken,
+		"access_token": encodeAccessToken,
+		// "refresh_token": encodeRefreshToken,
 	}
 
 	return c.JSON(http.StatusOK, resp)
