@@ -10,13 +10,28 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// func validate(req *models.Users, c echo.Context) (err error) {
+// 	if err = c.Bind(req); err != nil {
+// 		return err
+// 	}
+
+// 	return c.Validate(req)
+// }
+
 // LoginV2 login handler version 2
 func LoginV2(c echo.Context) (err error) {
-	username := c.FormValue("username")
-	password := c.FormValue("password")
+	// login using form value
+	// username := c.FormValue("username")
+	// password := c.FormValue("password")
 
+	// var u = new(models.Users)
 	var u models.Users
 	var resp helpers.Response
+
+	// err = validate(u, c)
+	// if err != nil {
+	// 	return err
+	// }
 
 	// bind struct
 	if err = c.Bind(&u); err != nil {
@@ -24,6 +39,10 @@ func LoginV2(c echo.Context) (err error) {
 		resp.Message = "Invalid JSON"
 		return c.JSON(http.StatusUnprocessableEntity, resp)
 	}
+
+	// login using body raw JSON
+	username := u.Username
+	password := u.Password
 
 	//db
 	db := psql.OpenDB()
@@ -42,6 +61,7 @@ func LoginV2(c echo.Context) (err error) {
 		return c.JSON(http.StatusUnauthorized, resp)
 	}
 
+	// Create Access Token adn Refresh Token
 	createToken, err := helpers.CreateToken(u.ID, u.Username, u.Password, u.Email, u.FullName)
 	if err != nil {
 		resp.Code = http.StatusUnprocessableEntity
@@ -51,22 +71,24 @@ func LoginV2(c echo.Context) (err error) {
 
 	// Save Access token to cookie
 	accessTokenCookie := new(http.Cookie)
-	accessTokenCookie.Name = createToken.AccessToken
+	accessTokenCookie.Name = "Access Token"
+	accessTokenCookie.Value = createToken.AccessToken
 	accessTokenCookie.Expires = time.Now().Add(time.Minute * 15)
 	c.SetCookie(accessTokenCookie)
 
 	// Save Refresh token to cookie
 	refreshTokenCookie := new(http.Cookie)
-	refreshTokenCookie.Name = createToken.RefreshToken
+	refreshTokenCookie.Name = "Refresh Token"
+	refreshTokenCookie.Value = createToken.RefreshToken
 	refreshTokenCookie.Expires = time.Now().Add(time.Hour * 24 * 7)
 	c.SetCookie(refreshTokenCookie)
 
-	resp.Code = http.StatusOK
+	resp.Code = http.StatusCreated
 	resp.Message = "Successfully Create Tokens!"
 	resp.Data = map[string]interface{}{
 		"access_token":  createToken.AccessToken,
 		"refresh_token": createToken.RefreshToken,
 	}
 
-	return c.JSON(http.StatusOK, resp)
+	return c.JSON(http.StatusCreated, resp)
 }
