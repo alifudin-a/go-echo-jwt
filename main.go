@@ -20,10 +20,11 @@ func main() {
 	e.Use(middleware.CORS())
 
 	// serve file
-	e.File("/", "view/index.html")
+	e.Static("/", "view")
 
 	// Login route
 	e.POST("/login", auth.Login)
+	e.POST("/login_v2", auth.LoginV2)
 	e.GET("/accessible", auth.Accessible)
 
 	// access := os.Getenv("JWT_ACCESS_SECRET")

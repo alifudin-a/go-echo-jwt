@@ -64,20 +64,6 @@ func Login(c echo.Context) (err error) {
 		return err
 	}
 
-	// // create token
-	// refreshToken := jwt.New(jwt.SigningMethodHS256)
-	// //REFRESH TOKEN
-	// refreshTokenClaims := refreshToken.Claims.(jwt.MapClaims)
-	// refreshTokenClaims["refresh_uuid"] = uuid.NewV4().String()
-	// refreshTokenClaims["expires"] = time.Now().Add(time.Hour * 24 * 7).Unix()
-
-	// // generate encoded token and send it as response
-	// encodeRefreshToken, err := refreshToken.SignedString([]byte(os.Getenv("JWT_REFRESH_TOKEN")))
-	// if err != nil {
-	// 	log.Println("Error", err)
-	// 	return err
-	// }
-
 	// create a cookie
 	cookie := new(http.Cookie)
 	cookie.Name = encodeAccessToken
