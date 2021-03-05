@@ -2,6 +2,7 @@ package auth
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/alifudin-a/go-echo-jwt/database/psql"
 	"github.com/alifudin-a/go-echo-jwt/helpers"
@@ -48,10 +49,22 @@ func LoginV2(c echo.Context) (err error) {
 		return c.JSON(http.StatusUnprocessableEntity, resp)
 	}
 
+	// Save Access token to cookie
+	accessTokenCookie := new(http.Cookie)
+	accessTokenCookie.Name = createToken.AccessToken
+	accessTokenCookie.Expires = time.Now().Add(time.Minute * 15)
+	c.SetCookie(accessTokenCookie)
+
+	// Save Refresh token to cookie
+	refreshTokenCookie := new(http.Cookie)
+	refreshTokenCookie.Name = createToken.RefreshToken
+	refreshTokenCookie.Expires = time.Now().Add(time.Hour * 24 * 7)
+	c.SetCookie(refreshTokenCookie)
+
 	resp.Code = http.StatusOK
 	resp.Message = "Successfully Create Tokens!"
 	resp.Data = map[string]interface{}{
-		"access_token":  createToken.AcessToken,
+		"access_token":  createToken.AccessToken,
 		"refresh_token": createToken.RefreshToken,
 	}
 

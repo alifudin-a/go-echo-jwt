@@ -12,7 +12,7 @@ import (
 
 // TokenDetails struct for access token and refresh token
 type TokenDetails struct {
-	AcessToken          string
+	AccessToken         string
 	RefreshToken        string
 	AccessUUID          string
 	RefreshUUID         string
@@ -39,15 +39,11 @@ func CreateToken(id int64, username, password, email, fullname string) (*TokenDe
 	accessTokenClaims["access_uuid"] = tokeDetails.AccessUUID
 	accessTokenClaims["expires"] = tokeDetails.AccessTokenExpires
 	acessToken := jwt.NewWithClaims(jwt.SigningMethodHS256, accessTokenClaims)
-	tokeDetails.AcessToken, err = acessToken.SignedString([]byte(os.Getenv("JWT_ACCESS_SECRET")))
+	tokeDetails.AccessToken, err = acessToken.SignedString([]byte(os.Getenv("JWT_ACCESS_SECRET")))
 	if err != nil {
 		log.Println("An error occured: ", err)
 		return nil, err
 	}
-	// Access Token Cookie
-	// accessTokenCookie := new(http.Cookie)
-	// accessTokenCookie.Name = tokeDetails.AcessToken
-	// accessTokenCookie.Expires = time.Now().Add(time.Minute * 15)
 
 	// Refresh Token
 	refreshTokenClaims := jwt.MapClaims{}
@@ -60,10 +56,6 @@ func CreateToken(id int64, username, password, email, fullname string) (*TokenDe
 		log.Println("An error occured: ", err)
 		return nil, err
 	}
-	// Refresh Token Cookie
-	// refreshTokenCookie := new(http.Cookie)
-	// refreshTokenCookie.Name = tokeDetails.RefreshToken
-	// refreshTokenCookie.Expires = time.Now().Add(time.Hour * 24 * 7)
 
 	return tokeDetails, nil
 }
