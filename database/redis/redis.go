@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/go-redis/redis/v7"
+	_ "github.com/joho/godotenv/autoload"
 )
 
 // RdbClient global variable

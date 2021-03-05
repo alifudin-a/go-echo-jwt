@@ -44,7 +44,7 @@ func LoginV2(c echo.Context) (err error) {
 	username := u.Username
 	password := u.Password
 
-	//db
+	// Open database connection
 	db := psql.OpenDB()
 	query := `SELECT * FROM users WHERE username = $1;`
 	err = db.Get(&u, query, username)
@@ -83,6 +83,7 @@ func LoginV2(c echo.Context) (err error) {
 	refreshTokenCookie.Expires = time.Now().Add(time.Hour * 24 * 7)
 	c.SetCookie(refreshTokenCookie)
 
+	// Success Response
 	resp.Code = http.StatusCreated
 	resp.Message = "Successfully Create Tokens!"
 	resp.Data = map[string]interface{}{
